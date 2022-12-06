@@ -135,7 +135,7 @@ void sendControlPacket(uint64_t invId, uint8_t cmd, uint16_t *data) {
 So as example sending any payload on `inverter/devcontrol/0/1` will switch off the inverter.
 
 ## Active Power Limit via REST API
-It is also implemented to set the power limit via REST API call. Therefore send a POST request to the endpoint /api.
+It is also implemented to set the power limit via REST API call. Therefore send a POST request to the endpoint /api/ctrl.
 The response will always be a json with {success:true}
 The payload shall be a json formated string in the following manner
 ```json
@@ -143,8 +143,7 @@ The payload shall be a json formated string in the following manner
     "inverter":<INVERTER_ID>,
     "tx_request": <TX_REQUEST_BYTE>,
     "cmd": <SUB_CMD_BYTE>,
-    "payload": <PAYLOAD_INTEGER_TWO_BYTES>,
-    "payload2": <PAYLOAD_INTEGER_TWO_BYTES>
+    "payload": [<PAYLOAD_INTEGER_TWO_BYTES>,<PAYLOAD_INTEGER_TWO_BYTES>]
 }
 ```
 With the following value ranges
@@ -163,20 +162,25 @@ Example to set the active power limit non persistent to 10%
     "inverter":0,
     "tx_request": 81,
     "cmd": 11,
-    "payload": 10,
-    "payload2": 1
+    "payload": [10,1]
 }
 ```
+
 Example to set the active power limit persistent to 600Watt
 ```json
 {
     "inverter":0,
     "tx_request": 81,
     "cmd": 11,
-    "payload": 600,
-    "payload2": 256
+    "payload": [200,256]
 }
 ```
+
+Example curl command
+```
+curl -X POST http://ahoy-dtu/api/ctrl -H 'Content-Type: application/json' -d '{"inverter":0,"cmd":11,"tx_request":81,"payload":[200,256]}'
+```
+
 
 ### Developer Information REST API
 In the same approach as for MQTT any other SubCmd and also MainCmd can be applied and the response payload can be observed in the serial logs. Eg. request the Alarm-Data from the Alarm-Index 5 from inverter 0 will look like this:
@@ -185,8 +189,7 @@ In the same approach as for MQTT any other SubCmd and also MainCmd can be applie
     "inverter":0,
     "tx_request": 21,
     "cmd": 17,
-    "payload": 5,
-    "payload2": 0
+    "payload": [5,0]
 }
 ```
 
